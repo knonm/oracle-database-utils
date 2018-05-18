@@ -1,0 +1,12 @@
+# Enable Oracle Client trace by appending the content below in sqlnet.ora client file
+#
+#CLIENT-SIDE SQL*NET TRACE PARAMETERS
+#====================================
+TRACE_UNIQUE_CLIENT = ON
+TRACE_LEVEL_CLIENT = 16
+TRACE_DIRECTORY_CLIENT = D:\
+TRACE_FILE_CLIENT = HOSTNAME1
+TRACE_TIMESTAMP_CLIENT = ON
+DIAG_ADR_ENABLED = OFF
+#TRACE_FILELEN_CLIENT = 2048
+#TRACE_FILENO_CLIENT = 2

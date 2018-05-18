@@ -1,0 +1,2 @@
+ALTER SYSTEM disable restricted session;
+ALTER SESSION SET NLS_DATE='DD/MM/YYYY HH24:MI:SS';

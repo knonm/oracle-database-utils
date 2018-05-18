@@ -1,0 +1,106 @@
+/*
+ * This only addresses ORA-12504 in the context of using the "Easy Connect Naming Method" with SQL*Plus and password prompting.
+ * It does not address ORA-12504 outside of this context.
+ *
+ * When using a tnsnames.ora file alias to connect to a database, if the password is not specified,
+ * SQL*Plus will prompt you for it (i.e. "Enter password:"):
+ */
+[oracle@liverpool ~]$ sqlplus hr@orademo
+
+SQL*Plus: Release 11.1.0.7.0 - Production on Sat Jul 11 11:42:08 2009
+Copyright (c) 1982, 2008, Oracle.  All rights reserved.
+
+Enter password:
+
+Connected to:
+Oracle Database 11g Enterprise Edition Release 11.1.0.7.0 - Production
+With the Partitioning, OLAP, Data Mining and Real Application Testing options
+
+SQL>
+
+/*
+ * Let's try the equivalent using EZCONNECT:
+ */
+[oracle@liverpool ~]$ sqlplus hr@liverpool:1521/DEMO
+
+SQL*Plus: Release 11.1.0.7.0 - Production on Sat Jul 11 11:43:20 2009
+Copyright (c) 1982, 2008, Oracle.  All rights reserved.
+
+ERROR:
+ORA-12504: TNS:listener was not given the SERVICE_NAME in CONNECT_DATA
+
+Enter user-name:
+
+/*
+ * Rather than getting prompted for the password we get an error
+ * (ORA-12504: TNS:listener was not given the SERVICE_NAME in CONNECT_DATA)
+ * and then we get presented with the "Enter user-name:" prompt again. Funny that the error is saying
+ * the SERVICE_NAME was not specified, but it sure is there - DEMO in this case. This is giving us a clue though...
+ *
+ * OK, so let's go ahead and specify the password:
+ */
+[oracle@liverpool ~]$ sqlplus hr/hr@liverpool:1521/DEMO
+
+SQL*Plus: Release 11.1.0.7.0 - Production on Sat Jul 11 11:44:02 2009
+Copyright (c) 1982, 2008, Oracle.  All rights reserved.
+
+Connected to:
+Oracle Database 11g Enterprise Edition Release 11.1.0.7.0 - Production
+With the Partitioning, OLAP, Data Mining and Real Application Testing options
+
+SQL>
+
+/*
+ * Much better, it works, but what if you (reasonably) don't want to specify the password on the command-line?
+ * Taking a look at the documentation (really - that stuff does come in handy!) for the CONNECT SQL*Plus command we can see this:
+ *
+ * username[/password] [@connect_identifier]
+ *
+ * Pay particular attention that the "/" precedes the password. In the case of using EZCONNECT we have:
+ *
+ * sqlplus hr@liverpool:1521/DEMO
+ *
+ * So, in this case the "/" precedes the SERVICE_NAME and not the password. How should we tell SQL*Plus that the "/" is not preceding the password?
+ * We quote the connection string!
+ */
+[oracle@liverpool ~]$ sqlplus hr@\"liverpool:1521/DEMO\"
+
+SQL*Plus: Release 11.1.0.7.0 - Production on Sat Jul 11 11:45:43 2009
+Copyright (c) 1982, 2008, Oracle.  All rights reserved.
+
+Enter password:
+
+Connected to:
+Oracle Database 11g Enterprise Edition Release 11.1.0.7.0 - Production
+With the Partitioning, OLAP, Data Mining and Real Application Testing options
+
+SQL>
+
+/*
+ * Now that's more like it! Notice that I used "\" (backslash) to escape the double-quote characters on the command-line (I'm using the bash shell for this).
+ * If you are already in SQL*Plus you do not need to use the backslash to escape the double-quote characters:
+[oracle@liverpool ~]$ sqlplus /nolog
+
+SQL*Plus: Release 11.1.0.7.0 - Production on Sat Jul 11 11:46:31 2009
+Copyright (c) 1982, 2008, Oracle.  All rights reserved.
+
+SQL> connect hr@"liverpool:1521/DEMO"
+Enter password:
+Connected.
+SQL>
+
+/*
+ * This same technique can also be used for privileged connections:
+ */
+[oracle@liverpool ~]$ sqlplus sys@\"liverpool:1521/DEMO\" as sysdba
+
+SQL*Plus: Release 11.1.0.7.0 - Production on Sat Jul 11 11:47:23 2009
+Copyright (c) 1982, 2008, Oracle.  All rights reserved.
+
+Enter password:
+
+Connected to:
+Oracle Database 11g Enterprise Edition Release 11.1.0.7.0 - Production
+With the Partitioning, OLAP, Data Mining and Real Application Testing options
+
+SQL>
